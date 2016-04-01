@@ -1,5 +1,6 @@
 package io.github.h3r3x3.xposedmods;
 
+import android.util.Log;
 import android.webkit.WebView;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -10,6 +11,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 /**
  * Created by h3r3x3 on 2016/4/1.
+ * X5模式未做校验
  */
 public class WechatWebViewHook implements IXposedHookLoadPackage {
     @Override
@@ -23,5 +25,16 @@ public class WechatWebViewHook implements IXposedHookLoadPackage {
                 XposedHelpers.callStaticMethod(WebView.class, "setWebContentsDebuggingEnabled", true);
             }
         });
+        Class clazz = XposedHelpers.findClass("com.tencent.smtt.sdk.WebView", loadPackageParam.classLoader);
+        if (clazz == null) {
+            return;
+        }
+        XposedBridge.hookAllConstructors(clazz,
+                new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        XposedHelpers.callStaticMethod(WebView.class, "setWebContentsDebuggingEnabled", true);
+                    }
+                });
     }
 }
